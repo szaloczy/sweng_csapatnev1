@@ -9,6 +9,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.io.Serializable;
 
+@NamedQuery(name="User.findByEmailById",query = "select u from User u where u.email=:email")
 @Setter
 @Getter
 @Data
@@ -56,5 +57,6 @@ public class User implements Serializable {
         this.role = role;
     }
 
-
+    public User() {
+    }
 }
