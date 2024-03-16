@@ -3,12 +3,20 @@ package com.sweng.sweng.serviceImpl;
 import com.sweng.sweng.constents.CafeConstants;
 import com.sweng.sweng.dao.UserDao;
 import com.sweng.sweng.entity.User;
+import com.sweng.sweng.jwt.CustomerUserDetailsService;
+import com.sweng.sweng.jwt.JwtFilter;
+import com.sweng.sweng.jwt.JwtUtil;
 import com.sweng.sweng.service.UserService;
 import com.sweng.sweng.utils.CafeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.pulsar.PulsarProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -20,6 +28,15 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserDao userDao;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+    @Autowired
+    CustomerUserDetailsService customerUserDetailsService;
+
+    @Autowired
+    JwtUtil jwtUtil;
 
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
@@ -61,5 +78,31 @@ public class UserServiceImpl implements UserService {
         user.setStatus("false");
         user.setRole("user");
         return user;
+    }
+
+    @Override
+    public ResponseEntity<String> login(Map<String, String> requestMap) {
+       log.info("Inside login");
+       try {
+               Authentication auth = authenticationManager.authenticate(
+                   new UsernamePasswordAuthenticationToken(requestMap.get("email"),requestMap.get("password"))
+           );
+           if (auth.isAuthenticated()){
+               if (customerUserDetailsService.getUserDetail().getStatus().equalsIgnoreCase("true")){
+                   return new ResponseEntity<String>("{\"token\":\""+
+                   jwtUtil.generateToken(customerUserDetailsService.getUserDetail().getEmail(),
+                           customerUserDetailsService.getUserDetail().getRole()) + "\"}",
+                   HttpStatus.OK);
+               }
+               else{
+                   return new ResponseEntity<String>("{\"message\":\""+"Wait for admin approval."+"\"}",
+                           HttpStatus.BAD_REQUEST);
+               }
+           }
+       } catch (Exception ex){
+           log.error("{}",ex);
+       }
+        return new ResponseEntity<String>("{\"message\":\""+"Bad Credentials."+"\"}",
+                HttpStatus.BAD_REQUEST);
     }
 }

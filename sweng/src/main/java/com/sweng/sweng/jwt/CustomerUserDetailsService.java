@@ -31,6 +31,8 @@ public class CustomerUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found.");
     }
 
+
+    //GIVES NULL POINTER EXCEPTIONS
     public com.sweng.sweng.entity.User getUserDetail(){
         return userDetail;
     }
