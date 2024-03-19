@@ -8,17 +8,18 @@ import com.sweng.sweng.jwt.JwtFilter;
 import com.sweng.sweng.jwt.JwtUtil;
 import com.sweng.sweng.service.UserService;
 import com.sweng.sweng.utils.CafeUtils;
+import com.sweng.sweng.wrapper.UserWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.pulsar.PulsarProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -36,6 +37,9 @@ public class UserServiceImpl implements UserService {
     CustomerUserDetailsService customerUserDetailsService;
 
     @Autowired
+    JwtFilter jwtFilter;
+
+    @Autowired
     JwtUtil jwtUtil;
 
     @Override
@@ -44,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
       try {
           if (validateSignUpMap(requestMap)) {
-              User user = userDao.findByEmailById(requestMap.get("email"));
+              User user = userDao.findByEmailId(requestMap.get("email"));
               if (Objects.isNull(user)) {
                   userDao.save(getUserFromMap(requestMap));
                   return CafeUtils.getResponseEntity("Successfully Registered", HttpStatus.OK);
@@ -104,5 +108,19 @@ public class UserServiceImpl implements UserService {
        }
         return new ResponseEntity<String>("{\"message\":\""+"Bad Credentials."+"\"}",
                 HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<List<UserWrapper>> getAllUser() {
+        try {
+            if (jwtFilter.isAdmin()){
+
+            } else{
+                return new ResponseEntity<>(new ArrayList<>(),HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

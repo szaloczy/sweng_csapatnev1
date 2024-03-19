@@ -6,17 +6,20 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.context.annotation.Bean;
 
 import java.io.Serializable;
 
-@NamedQuery(name="User.findByEmailById",query = "select u from User u where u.email=:email")
-@Setter
-@Getter
+@NamedQuery(name = "User.findByEmailId", query = "select u from User u where u.email=:email")
+
+@NamedQuery(name = "User.getAllUser", query = "select new com.sweng.sweng.wrapper.UserWrapper(u.id,u.name,u.email,u.contactNumber,u.status) from User u where u.role='user'")
+
 @Data
 @Entity
 @DynamicUpdate
 @DynamicInsert
 @Table(name = "user")
+
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
