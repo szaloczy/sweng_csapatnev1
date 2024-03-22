@@ -24,15 +24,11 @@ public class CustomerUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("Inside loadUserByUsername {}", username);
-        this.userDetail = userDao.findByEmailId(username);
+        userDetail = userDao.findUserByEmail(username);
         if (!Objects.isNull(userDetail))
             return new User(userDetail.getEmail(),userDetail.getPassword(),new ArrayList<>());
         else
             throw new UsernameNotFoundException("User not found.");
     }
 
-    //GIVES NULL POINTER EXCEPTIONS
-    public com.sweng.sweng.entity.User getUserDetail(){
-        return this.userDetail;
-    }
 }

@@ -92,10 +92,11 @@ public class UserServiceImpl implements UserService {
                    new UsernamePasswordAuthenticationToken(requestMap.get("email"),requestMap.get("password"))
            );
            if (auth.isAuthenticated()){
-               if (customerUserDetailsService.getUserDetail().getStatus().equalsIgnoreCase("true")){
+               User loggedInUser = userDao.findUserByEmail(auth.getName());
+               if (loggedInUser.getStatus().equalsIgnoreCase("true")){
                    return new ResponseEntity<String>("{\"token\":\""+
-                   jwtUtil.generateToken(customerUserDetailsService.getUserDetail().getEmail(),
-                           customerUserDetailsService.getUserDetail().getRole()) + "\"}",
+                   jwtUtil.generateToken(loggedInUser.getEmail(),
+                           loggedInUser.getRole()) + "\"}",
                    HttpStatus.OK);
                }
                else{
