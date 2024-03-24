@@ -2,10 +2,7 @@ package com.sweng.sweng.rest;
 
 import com.sweng.sweng.wrapper.UserWrapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -25,4 +22,9 @@ public interface UserRest {
     @PostMapping
     public ResponseEntity<String> update(@RequestBody(required = true) Map<String, String> requestMap);
 
+    @GetMapping(path = "/checkToken")
+    public ResponseEntity<String> checkToken();
+
+    @PostMapping(path = "/changePassword")
+    ResponseEntity<String> changePassword(@RequestBody Map<String, String> requestMap);
 }
